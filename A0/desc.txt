@@ -1,0 +1,8 @@
+-----*----- FUNCTION -----*-----
+Simplistic function editing as a
+brief introduction to C++.
+
+-----*----- COMMANDS -----*-----
+make:	Makes ./a1 executable.
+./a1:	Provides a display to console
+ 

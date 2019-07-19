@@ -1,0 +1,29 @@
+-----*----- FUNCTION -----*-----
+This code measures the number of 
+kmer's present ina given segment 
+of DNA.
+
+-----*----- COMMANDS -----*----- 
+
+make:		Complies the code to run.
+./write [int]:	Creates a file, "foo.txt" with a segement
+		of random DNA of length [int].
+
+./a1 [str] [int 1] [int 2]: 
+Inputs:
+	[str]:   Textfile name, relative to current directory
+	[int 1]: k, or the desired size of the kmer
+	[int 2]: Minimum number of occurences required to display kmer count	
+Outputs:
+0 [int k] [int length]
+1 [int A] [int C] [int G] [int T]
+[str kmer] [int repeats]
+...
+[str kmer] [int repeats]
+
+	[int k]:	The k inputted
+	[int length]:	The length of the DNA segement input
+	[int A/C/G/T]:	Occurences of each nucleotide
+	[str kmer]:	The kmer chain
+	[int repeats]:	Number of times this kmer occured
+
