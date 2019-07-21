@@ -8,33 +8,79 @@
 #ifndef A2_HPP
 #define A2_HPP
 
-// MAKE SURE TO UPDATE YOUR INFORMATION IN THE HEADER OF THIS FILE
-// IMPLEMENT MISSING FUNCTIONALITY OF key_value_sequences IN THIS FILE
-// YOU ARE NOT ALLOWED TO INCLUDE ANY OTHER HEADERS THAN
-// <algorithm>, <list>, <vector>
-// YOU CAN CHANGE/EDIT ANY CODE IN THIS FILE AS LONG AS SEMANTICS IS UNCHANGED
-// AND MATCHES SPECIFICATION PROVIDED IN THE ASSIGNMENT TEXT
-
 #include <algorithm>
 #include <list>
 #include <vector>
 
 class key_value_sequences {
 public:
-    // YOU SHOULD USE C++ CONTAINERS TO AVOID RAW POINTERS
-    // IF YOU DECIDE TO USE POINTERS, MAKE SURE THAT YOU MANAGE MEMORY PROPERLY
 
-    // IMPLEMENT ME: SHOULD RETURN SIZE OF A SEQUENCE FOR GIVEN KEY
-    // IF NO SEQUENCE EXISTS FOR A GIVEN KEY RETURN 0
-    int size(int key) const;
+	std::list< std::vector<int> > ext;
 
-    // IMPLEMENT ME: SHOULD RETURN POINTER TO A SEQUENCE FOR GIVEN KEY
-    // IF NO SEQUENCE EXISTS FOR A GIVEN KEY RETURN nullptr
-    const int* data(int key) const;
+	// Determine the number of elements inserted for a particular key
+	int size(int key) const {
 
-    // IMPLEMENT ME: INSERT VALUE INTO A SEQUENCE IDENTIFIED BY GIVEN KEY
-    void insert(int key, int value);
+		// Check through our entire exterior list
+		for (std::list< std::vector<int> >::const_iterator it = ext.begin(); it != ext.end(); it++){
 
-}; // class key_value_sequences
+			// Check if the first value is the key 
+			std::vector<int> curVec = *it;
+			if (*curVec.begin() == key){
+				return curVec.size()-1;
+			}
+			
+		}
 
-#endif // A2_HPP
+		// If it wasn't encountered - then just return zip!
+		return 0;
+	};
+
+	// Given a particular key, find all corresponding values
+	const int* data(int key) const{
+
+		// Check through our entire exterior list
+		for (std::list< std::vector<int> >::const_iterator it = ext.begin(); it != ext.end(); it++){
+			
+			// Check if the first value is the key
+			std::vector<int> curVec = *it;
+			if (*curVec.begin() == key){
+
+				// Format the output to be returned
+				std::vector<int> output;
+				output.reserve(curVec.size()-1);
+
+				for (std::vector<int>::const_iterator i = curVec.begin(); i != curVec.end(); i++){
+					output.push_back(*i);
+				}
+
+				return output.begin();
+			}
+		}
+		return 0;
+	};
+
+	// Insert a value linked to a particular key
+	void insert(int key, int value){
+
+		// Check through our entire exterior list
+		for (std::list<std::vector<int>>::iterator it = ext.begin(); it != ext.end(); it++){
+			
+			// Check if the first value is the desired key
+			std::vector<int> curVec = *it;
+			if (*curVec.begin() == key){
+				curVec.push_back(value);
+				return;
+			}
+
+		}
+
+		// This key isn't in our system yet!
+		std::vector<int> curVec;
+		curVec.push_back(key);
+		curVec.push_back(value);
+		ext.push_back(curVec);
+	};
+
+};
+
+#endif

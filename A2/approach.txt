@@ -1,0 +1,9 @@
+Data structure set-up:
+
+- Use doubly-linked list
+-> 1st part:	List
+	Value points to the vector
+-> 2nd part:	Vector
+	First value:		The key
+	Remaining values:	The values linked to this key 
+
