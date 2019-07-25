@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
             ref.clear();
             for (int v = 0; v < k + 1; ++v) ref.push_back(v);
             if (!std::equal(ref.begin(), ref.end(), A.data(k))) {
-                std::cout << "fail";
+                std::cout << "fail" << std::endl;
                 return -1;
             }
         }
