@@ -22,7 +22,7 @@ void symbols(IterIn first, IterIn last, IterOut out) {
 
     for (; first != last; ++first) {
         const std::string& s = *first;
-        for (int i = 0; i < s.size(); ++i) count[s[i]]++;
+        for (int i = 0; i < (int) s.size(); ++i) count[s[i]]++;
     } // for first
 
     for (int c = 0; c < 256; ++c) {
@@ -53,6 +53,11 @@ int main(int argc, char* argv[]) {
     // create a list of symbols
     std::vector<symbol> A;
     symbols(lines.begin(), lines.end(), std::back_inserter(A));
+
+    	// Remove this before submitting
+	for (std::vector<symbol>::iterator it = A.begin(); it != A.end(); it++){
+		std::cout << it->value << ": " << it->count << std::endl;
+	}
 
     // process the list (student's code)
     bnode<symbol>* tree = huffman_tree(A.begin(), A.end());
