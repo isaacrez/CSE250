@@ -1,0 +1,1 @@
+Huffman Encoding program.  Takes a text document, finds the counts of the associated characters, and then finds the Huffman Encoding to minimize memory use within this paradigm.
