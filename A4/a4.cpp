@@ -54,11 +54,6 @@ int main(int argc, char* argv[]) {
     std::vector<symbol> A;
     symbols(lines.begin(), lines.end(), std::back_inserter(A));
 
-    	// Remove this before submitting
-	for (std::vector<symbol>::iterator it = A.begin(); it != A.end(); it++){
-		std::cout << it->value << ": " << it->count << std::endl;
-	}
-
     // process the list (student's code)
     bnode<symbol>* tree = huffman_tree(A.begin(), A.end());
 

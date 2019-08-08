@@ -11,190 +11,114 @@
 #include <ostream>
 #include "symbol.hpp"
 
-#include <vector>
+#include <queue>
+#include <list>
 #include <cmath>
 #include <iostream>
 
-// NOTES:
-// 	bnode has the following properties:
-// 		T: 	the stored value
-// 		right:	the right child
-// 		left:	the left child
+void printHelper(std::ostream& os, bnode<symbol>* root, std::string ID);
+void print_dictionary(std::ostream& os, bnode<symbol>* root);
 
-// 	Iter appears to be a standard vector iterator.
-
-// 	symbol has the following properties:
-// 		value:	Character of the symbol
-// 		count:	Occurences of this symbol
-
-void printVector(std::vector<bnode<symbol>>::iterator first, std::vector<bnode<symbol>>::iterator last);
-void print_recur(std::ostream& os, bnode<symbol>* root, std::string ID);
-
+// IMPLEMENT YOUR FUNCTION huffman_tree
 template <typename Iter>
 bnode<symbol>* huffman_tree(Iter first, Iter last){
-	// Goal:	Generate the huffman tree, from a vector of characters
-	// Inputs:	Vector of symbols, with proper counts
 
-	// Sort provided list from least-to-greatest
-	std::vector<bnode<symbol>> sortedList = mergeSort(first, last);
+	std::priority_queue<symbol, std::vector<symbol>> myHeap;
 
-	for (unsigned i = 0; i < sortedList.size(); i++){
-		sortedList[i].left = nullptr;
-		sortedList[i].right = nullptr;
+	// Store everything into bnodes & push into queue
+	for (; first != last; first++){
+		myHeap.push(*first);
 	}
 
-	while (sortedList.size() > 1) {
-		// Create placeholder bin
-		bnode<symbol>* bin;
+	// Convert heap into a sorted list of bnodes
+	std::list<bnode<symbol>*> sortedList;
+	while (not myHeap.empty()){
+		// Set up new node
+		bnode<symbol>* bin = new bnode<symbol>;
+		bin->value = myHeap.top();
+		myHeap.pop();
 		
-		// DEBUGGING
-		printVector(sortedList.begin(), sortedList.end());
-		std::cout << "Compacting a node..." << std::endl;
-		bin->value.value = 'T';
+		// Insert into our list
+		sortedList.push_front(bin);
+	}
 
-		// Populate bin appropriately
-		bin->left = &sortedList.back();
-		sortedList.pop_back();
-		bin->right = &sortedList.back();
-		sortedList.pop_back();
-		bin->value.count = bin->left->value.count + bin->right->value.count;
-	
-		std::cout << "Combining the following nodes: " << bin->left->value.value << " & " << bin->right->value.value << std::endl;
+	// Convert our sortedList into a tree
+	while (sortedList.size() > 1){
 
-		// Store it back in the vector, in proper order
-		bool added = false;
-		for (std::vector<bnode<symbol>*>::iterator it = sortedList.end() - 1; it != sortedList.begin() - 1; it--){
-			if (it->value.count >= bin->value.count){
-				sortedList.insert(it+1, bin);
-				added = true;
+		// Condense two nodes into a new bnode
+		bnode<symbol>* bin = new bnode<symbol>;
+		bin->left = sortedList.front();
+		sortedList.pop_front();
+		bin->right = sortedList.front();
+		sortedList.pop_front();
+
+		bin->value.count = bin->right->value.count + bin->left->value.count;
+		if (bin->left->value.value < bin->right->value.value){
+			bin->value.value = bin->left->value.value;
+		} else {
+			bin->value.value = bin->right->value.value;
+		}
+
+		// Insert our new bnode back into the list
+		bool notInserted = true;
+		for (auto it = sortedList.begin(); it != sortedList.end() ; it++){
+			if (bin->value < (*it)->value){
+				sortedList.insert(it, bin);
+				notInserted = false;
 				break;
 			}
 		}
 
-		// Catch for when the inserted element is the largest in the vector
-		if (not added){
-			sortedList.insert(sortedList.begin(), bin);
+		// Catch for when the node deserves to be thrown in the back 
+		if (notInserted){
+			sortedList.push_back(bin);
 		}
+
+		// DEBUGGING
+		// std::cout << "New node: " << bin->left->value.value << "-" << bin->right->value.value << std::endl;
+		// print_dictionary(std::cout, bin);
+
+		// DEBUGGING
+		// Print our list to confirm it's changing appropriately
+		// std::cout << "New list:\n";
+		// for (auto it = sortedList.begin(); it != sortedList.end(); it++){
+		// 	std::cout << "\t" << (*it)->value.value << ": " << (*it)->value.count << std::endl;
+		// }
+
 	}
 
-	return &sortedList.front();
-
+	return sortedList.front();
 }
 
-// DEBUGGING
-void printVector(std::vector<bnode<symbol>>::iterator first, std::vector<bnode<symbol>>::iterator last){
-	std::cout << "Current vector:" << std::endl;
-	for (; first != last; first++){
-		std::cout << "\t" << first->value.value << ": " << first->value.count << std::endl;
-	}
-}
-
-// Mergesort Method
-// 	Used to organize elements to easily generate Huffman tree.
-template<typename Iter>
-std::vector<bnode<symbol>> mergeSort(Iter first, Iter last){
-
-	std::vector<bnode<symbol>> list(first, last);
-	// Recursion:	Lists greater than two elements
-	if (list.size() > 2){
-
-		// Split our list and call again
-		int cutoff = std::ceil(list.size()/2);
-		std::vector<bnode<symbol>> sublist_1 = mergeSort(list.begin(), list.begin() + cutoff);
-		std::vector<bnode<symbol>> sublist_2 = mergeSort(list.begin() + cutoff, list.end());
-
-		std::vector<bnode<symbol>> sortedList;
-
-		// Combine our sublists
-		std::vector<bnode<symbol>>::iterator it_1 = sublist_1.begin();
-		std::vector<bnode<symbol>>::iterator it_2 = sublist_2.begin();
-
-		while (it_1 != sublist_1.end() and it_2 != sublist_2.end()){
-			if (it_1->value.count < it_2->value.count){
-				sortedList.push_back(*it_2);
-				it_2++;
-			} else {
-				sortedList.push_back(*it_1);
-				it_1++;
-			}
-		}
-
-		// Account for leftovers
-		while (it_1 != sublist_1.end()){
-			sortedList.push_back(*it_1);
-			it_1++;
-		}
-		while (it_2 != sublist_2.end()){
-			sortedList.push_back(*it_2);
-			it_2++;
-		}
-
-		return sortedList;
-
-	}
-	// Base case 1:	One element list
-	else if (list.size() == 1)
-       	{
-		return list;
-	}
-	// Base case 2:	Two element list
-	else
-	{
-		// Check if the elements need to be swapped
-		if (list[0].value.count < list[1].value.count){
-			bnode<symbol> temp = list[1];
-			list[1] = list[0];
-			list[0] = temp;
-		}
-		return list;
-	}
-}
-
-// IMPLEMENT YOUR FUNCTION print_dictionary
+// Outputs the Huffman Encoding for the given tree
 void print_dictionary(std::ostream& os, bnode<symbol>* root){
-	// Goal:	Output the heap display, as desired
-	// Method:	DFS	
-	
-//	print_recur(os, root, "");
+	printHelper(os, root, "");
 }
 
-void print_recur(std::ostream& os, bnode<symbol>* root, std::string ID){
-
-	bool gate = true;
-	std::cout << root->value.value << " " << ID << std::endl;
-
-	if (ID.length() > 5){
+void printHelper(std::ostream& os, bnode<symbol>* root, std::string ID){
+	if (root->left == nullptr and root->right == nullptr){
+		os << root->value.value << " " << ID << std::endl;
 		return;
 	}
-
-	// Check if this is an intermediate node
 	if (root->left != nullptr){
-		std::string left_ID = ID;
-		left_ID.push_back('0');
-
-		print_recur(os, root->left, left_ID);
-		gate = false;
+		printHelper(os, root->left, ID + '0');
 	}
-
 	if (root->right != nullptr){
-		std::string right_ID = ID;
-		right_ID.push_back('1');
-
-		print_recur(os, root->right, right_ID);
-		gate = false;
+		printHelper(os, root->right, ID + '1');
 	}
-
-	// Output if it is NOT an intermediate node
-	if (gate) {
-		std::cout << root->value.value << " " << ID << std::endl;
-	}
-	
 }
 
-// IMPLEMENT YOUR FUNCTION release_tree
+// Memory clean-up
 void release_tree(bnode<symbol>* root){
-	// Goal:	Deconstruct the tree
-	// Method:	DFS
+	// Reached base case: Leaf node
+	if (root->left == nullptr and root->right == nullptr){
+		delete root;
+	} else {
+	// Recursive case - call it's node's, then delete this node
+		release_tree(root->left);
+		release_tree(root->right);
+		delete root;
+	}
 }
 
 #endif // A4_HPP
