@@ -7,9 +7,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <map>
 #include <vector>
 #include <string>
+
+std::string comp(std::string prosName, int prosCount, std::string currName, int &highCount);
 
 int main(int argc, char* argv[]) {
 
@@ -72,6 +75,16 @@ int main(int argc, char* argv[]) {
 			int highCount = 0;
 			std::string currName = *it;
 			std::string predName;
+			
+			// Deletion:
+			for (unsigned i = 0; i < currName.size(); i++){
+				currName.erase(i, 1);
+				auto key = dict.find(currName);
+				if (key != dict.end()){
+					predName = comp(key->first, key->second, predName, highCount);
+				}
+				currName = *it;
+			}
 
 			// Replacement:
 			for (unsigned i = 0; i < currName.size(); i++){
@@ -79,23 +92,7 @@ int main(int argc, char* argv[]) {
 					currName[i] = alpha[j];
 					auto key = dict.find(currName);
 					if (key != dict.end()){
-						if (key->second > highCount){
-							predName = currName;
-							highCount = key->second;
-						}
-					}
-				}
-				currName = *it;
-			}
-
-			// Deletion:
-			for (unsigned i = 0; i < currName.size(); i++){
-				currName.erase(i, 1);
-				auto key = dict.find(currName);
-				if (key != dict.end()){
-					if (key->second > highCount){
-						predName = currName;
-						highCount = key->second;
+						predName = comp(key->first, key->second, predName, highCount);
 					}
 				}
 				currName = *it;
@@ -108,10 +105,7 @@ int main(int argc, char* argv[]) {
 					currName[i] = alpha[j];
 					auto key = dict.find(currName);
 					if (key != dict.end()){
-						if (key->second > highCount){
-							predName = currName;
-							highCount = key->second;
-						}
+						predName = comp(key->first, key->second, predName, highCount);
 					}
 				}
 				currName = *it;
@@ -133,4 +127,17 @@ int main(int argc, char* argv[]) {
 		std::cout << it->first << " " << it->second << std::endl;
 	}
 
+}
+
+std::string comp(std::string prosName, int prosCount, std::string currName, int &highCount){
+	if (prosCount > highCount){
+		highCount = prosCount;
+		return prosName;
+	} else if (prosCount == highCount){
+		if (std::lexicographical_compare(prosName.begin(), prosName.end(), currName.begin(), currName.end())){
+			highCount = prosCount;
+			return prosName;
+		}
+	}
+	return currName;
 }
